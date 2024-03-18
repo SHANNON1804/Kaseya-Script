@@ -1,0 +1,35 @@
+<ScExport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.kaseya.com/vsa/2008/12/Scripting">
+  <Procedure name="toggle for RDP port close" treePres="3" id="1108480984">
+    <Body description="">
+      <Statement name="ExecuteShellCommand" continueOnFail="false">
+        <Parameter xsi:type="StringParameter" name="Command" value="reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f"/>
+        <Parameter xsi:type="EnumParameter" name="ExecuteAccount" value="System"/>
+        <Parameter xsi:type="BooleanParameter" name="Is64Bit" value="False"/>
+      </Statement>
+      <Statement name="Execute Shell Command - Get Results to Variable" continueOnFail="false">
+        <Parameter xsi:type="StringParameter" name="Parameter1" value="netstat -ano | find "3389""/>
+        <Parameter xsi:type="StringParameter" name="Parameter2" value="False"/>
+        <Parameter xsi:type="StringParameter" name="Parameter3" value="System"/>
+      </Statement>
+      <If description="">
+        <Condition name="CheckVariable">
+          <Parameter xsi:type="StringParameter" name="VariableName" value="#global:cmdresults#"/>
+          <Parameter xsi:type="EnumParameter" name="Condition" value="Contains"/>
+          <Parameter xsi:type="StringParameter" name="Value" value="Listening"/>
+        </Condition>
+        <Then>
+          <Statement name="UpdateSystemInfo" continueOnFail="true">
+            <Parameter xsi:type="StringParameter" name="ColumnName" value="RDP Port "/>
+            <Parameter xsi:type="StringParameter" name="Value" value="open"/>
+          </Statement>
+        </Then>
+        <Else>
+          <Statement name="UpdateSystemInfo" continueOnFail="true">
+            <Parameter xsi:type="StringParameter" name="ColumnName" value="RDP Port "/>
+            <Parameter xsi:type="StringParameter" name="Value" value="close"/>
+          </Statement>
+        </Else>
+      </If>
+    </Body>
+  </Procedure>
+</ScExport>
